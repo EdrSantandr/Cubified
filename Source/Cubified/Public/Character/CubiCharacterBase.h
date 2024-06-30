@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "CubiCharacterBase.generated.h"
 
+class UBoxComponent;
+
 UCLASS(Abstract)
 class CUBIFIED_API ACubiCharacterBase : public ACharacter
 {
@@ -18,5 +20,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, Category="Mesh")
+	TObjectPtr<UBoxComponent> BoxComponent;
 
 };
