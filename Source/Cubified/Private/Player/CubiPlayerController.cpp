@@ -7,6 +7,7 @@
 
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Character/CubiCharacterBase.h"
 
 ACubiPlayerController::ACubiPlayerController()
 {
@@ -33,7 +34,7 @@ void ACubiPlayerController::SetupInputComponent()
 	Super::SetupInputComponent();
 	UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(InputComponent);
 
-	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Completed, this, &ACubiPlayerController::Move);
+	EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Started, this, &ACubiPlayerController::Move);
 }
 
 void ACubiPlayerController::Move(const FInputActionValue& InputActionValue)
@@ -45,11 +46,23 @@ void ACubiPlayerController::Move(const FInputActionValue& InputActionValue)
 	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-	if (APawn* ControlledPawn = GetPawn<APawn>())
+	if (ACubiCharacterBase* CubiCharacter = Cast<ACubiCharacterBase>(GetPawn<APawn>()))
 	{
-		//ControlledPawn->AddMovementInput(ForwardDirection, Inpstd::to_string(ustd::to_string(tAxisVector.Y);
-		UE_LOG(LogTemp, Warning, TEXT("Move forward vector [%s] and inputaxisvector: [%f]"),*ForwardDirection.ToString(), InputAxisVector.Y);
-		//ControlledPawn->AddMovementInput(RightDirection, InputAxisVector.X);
-		UE_LOG(LogTemp, Warning, TEXT("Move right vector [%s] and inputaxisvector: [%f]"),*RightDirection.ToString(), InputAxisVector.X);
+		//UE_LOG(LogTemp, Warning, TEXT("Move forward vector [%s] and inputaxisvector: [%f]"),*ForwardDirection.ToString(), InputAxisVector.Y);
+		const FVector VectorXAxis = ForwardDirection*InputAxisVector.Y;
+		const float VectorXLenght = VectorXAxis.Length();
+
+		const FVector VectorYAxis = RightDirection*InputAxisVector.X;
+		const float VectorYLenght = VectorYAxis.Length();
+
+		if (VectorXLenght > 0)
+		{
+			CubiCharacter->MovementAxis(ForwardDirection, InputAxisVector.Y);
+		}
+		if (VectorYLenght > 0)
+		{
+			CubiCharacter->MovementAxis(RightDirection, InputAxisVector.X);
+		}
 	}
 }
+
